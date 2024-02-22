@@ -12,8 +12,8 @@ DEFINE_STATE {
 } WITH_INSTANCE(delayState);
 
 DEFINE_STATE {
-    static unsigned pin;
-    static bool pressed;
+    static inline unsigned pin;
+    static inline bool pressed;
     STATE_START {
         pressed = false;
         unsigned interrupt = digitalPinToInterrupt(pin);

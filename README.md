@@ -14,22 +14,21 @@ DEFINE_STATE {
 
 // defining a more complex state
 DEFINE_STATE {
+    static inline bool pressed = false;
     STATE_START {
         // Configure interrupts
     }
     STATE_CONTINUES {
         // return false to go to the exit this state
-<<<<<<< HEAD
-=======
         next_state = &simple_state;
-        return false;
->>>>>>> bf59884 (Cleanup and Renaming some things)
+        return pressed;
     }
     STATE_EXIT {
         // Reset interrupts
     }
     STATE_INTERRUPT(interrupt_name) {
         // The Input was pressed during while the state is active
+        pressed = true;
     }
 } WITH_INSTANCE (defined_state);
 
