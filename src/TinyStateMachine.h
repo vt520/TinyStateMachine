@@ -5,15 +5,17 @@
 
     #define STATE_START_PARAMS const Tiny::Context * context, Tiny::State * substitute
     #define STATE_START bool Start(STATE_START_PARAMS) override
-    #define STATE_CONTINUE_PARAMS const Tiny::Context * context, Tiny::State * next_state
+    #define STATE_CONTINUES_PARAMS const Tiny::Context * context, Tiny::State * next_state
 
-    #define STATE_CONTINUE bool Update(STATE_CONTINUE_PARAMS)
+    #define STATE_CONTINUES bool Continues(STATE_CONTINUES_PARAMS)
 
     #define STATE_EXIT_PARAMS const Tiny::Context * context
     #define STATE_EXIT void Exit(STATE_EXIT_PARAMS) override 
 
-    #define DEFINE_STATE class : Tiny::State
-    #define NAMED(name) static name;
+    #define STATE_INTERRUPT(name) public: static void name() 
+    //#define 
+    #define DEFINE_STATE class : public Tiny::State
+    #define WITH_INSTANCE(name) static name;
 
     namespace Tiny {
         using millis_t = unsigned long;
@@ -23,7 +25,7 @@
                 unsigned count = 0;
                 millis_t executionMillis = (millis_t)0;
                 void Reset();
-                virtual void Continue();
+                virtual void Continues();
                 void * initialState = nullptr;
                 void * previousState = nullptr;
             private:
@@ -31,7 +33,7 @@
         };
         struct State {
             virtual bool Start(STATE_START_PARAMS);
-            virtual bool Continue(STATE_CONTINUE_PARAMS);
+            virtual bool Continues(STATE_CONTINUES_PARAMS);
             virtual void Exit(STATE_EXIT_PARAMS);
         } ;
         
@@ -41,7 +43,7 @@
                 Process(State * idle_state);
                 void Start(State * state);
                 void StartNext(State * state);
-                void Continue() override;
+                void Continues() override;
                 bool Executing();
                 bool ExecutingIdle();
                 bool Active();

@@ -13,7 +13,7 @@ namespace Tiny {
         executionMillis = (millis_t)0;
     }
 
-    void Context::Continue() {
+    void Context::Continues() {
         millis_t current_millis = millis();
         executionMillis = current_millis - startMillis;
     }
@@ -22,7 +22,7 @@ namespace Tiny {
         return false;
     }
 
-    bool State::Continue(STATE_CONTINUE_PARAMS) {
+    bool State::Continues(STATE_CONTINUES_PARAMS) {
         return false;
     }
 
@@ -55,11 +55,11 @@ namespace Tiny {
         if (!state->Start(this, fail_state)) StartNext(fail_state);
     }
 
-    void Process::Continue() {
+    void Process::Continues() {
         if(nullptr == currentState) return;
         State * next_state;
-        bool busy = currentState->Continue(this, next_state);
-        Context::Continue();
+        bool busy = currentState->Continues(this, next_state);
+        Context::Continues();
         if (!busy) {
             StartNext(next_state);
         }
@@ -74,12 +74,12 @@ namespace Tiny {
     }
 
     bool Process::Active() {
-        Continue();
+        Continues();
         return Executing();
     }
 
     bool Process::Idle() {
-        Continue();
+        Continues();
         return ExecutingIdle();
     }
 }
