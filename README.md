@@ -21,7 +21,7 @@ DEFINE_STATE {
     STATE_CONTINUES {
         // return false to go to the exit this state
         next_state = &simple_state;
-        return pressed;
+        return !pressed;
     }
     STATE_EXIT {
         // Reset interrupts
