@@ -19,6 +19,11 @@ DEFINE_STATE {
     }
     STATE_CONTINUES {
         // return false to go to the exit this state
+<<<<<<< HEAD
+=======
+        next_state = &simple_state;
+        return false;
+>>>>>>> bf59884 (Cleanup and Renaming some things)
     }
     STATE_EXIT {
         // Reset interrupts
