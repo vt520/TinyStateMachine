@@ -1,10 +1,11 @@
 #include <Arduino.h>
 #include <TinyStateMachine.h>
 
+
 DEFINE_STATE {
     STATE_CONTINUES {
         if (context->executionMillis > 1000) {
-            next_state = (State*) context->initialState;
+            next_state = context->process->GetInitialState();
             return false;
         }
         return true;
@@ -39,10 +40,11 @@ DEFINE_STATE {
     }
 } WITH_INSTANCE (usingPin);
 
-
+Tiny::Machine foo = {{Tiny::systemProcess}};
 
 void setup() {
     using namespace Tiny;
+    
     systemProcess = Process(&usingPin);
 }
 

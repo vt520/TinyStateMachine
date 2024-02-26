@@ -13,7 +13,7 @@ namespace Tiny {
         executionMillis = (millis_t)0;
     }
 
-    void Context::Continues() {
+    void Context::Update() {
         millis_t current_millis = millis();
         executionMillis = current_millis - startMillis;
     }
@@ -35,31 +35,33 @@ namespace Tiny {
     }
 
     Process::Process(State *default_state) {
+        context.process = this;
         idleState = default_state;
         StartNext(idleState);
     }
 
     void Process::Start(State *state) {
-        this->initialState = state;
+        initialState = state;
         StartNext(state);
     }
     void Process::StartNext(State *state) {
-        previousState = currentState;
         if (currentState != nullptr) {
-            currentState->Exit(this);
+            currentState->Exit(&context);
         }        
+        previousState = currentState;
         currentState = state;
-        Reset();
+        context.Reset();
+
         if (nullptr == state) return;
         State * fail_state = idleState;
-        if (!state->Start(this, fail_state)) StartNext(fail_state);
+        if (!state->Start(&context, fail_state)) StartNext(fail_state);
     }
 
     void Process::Continues() {
         if(nullptr == currentState) return;
         State * next_state;
-        bool busy = currentState->Continues(this, next_state);
-        Context::Continues();
+        bool busy = currentState->Continues(&context, next_state);
+        context.Update();
         if (!busy) {
             StartNext(next_state);
         }
@@ -81,5 +83,21 @@ namespace Tiny {
     bool Process::Idle() {
         Continues();
         return ExecutingIdle();
+    }
+
+    State *Process::GetPreviousState() {
+        return previousState;
+    }
+
+    State *Process::GetIdleState() {
+        return idleState;
+    }
+
+    State *Process::GetCurrentState() {
+        return currentState;
+    }
+
+    State *Process::GetInitialState() {
+        return initialState;
     }
 }
