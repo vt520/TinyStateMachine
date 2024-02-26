@@ -50,11 +50,16 @@
 
         class Process {
         public:
+            using priority_t = unsigned;
+            static const priority_t disabled = 0;
+            static const priority_t defaultPriority = 1;
+            priority_t priority = disabled;
+
             Process();
             Process(State * idle_state);
             void Start(State * state);
             void StartNext(State * state);
-            void Continues();
+            void Execute();
             bool Executing();
             bool ExecutingIdle();
             bool Active();
@@ -72,26 +77,53 @@
             State * idleState = nullptr;
         } static systemProcess;
 
-        struct Machine {
+        #define PROCESSES_PER_STATE 10
+        class Machine {
         public:
             using process_id = unsigned;
-            static const process_id max_processes = 10;
+            static const process_id max_processes = PROCESSES_PER_STATE;
             Process * processes[max_processes];
-            Machine ( Process & initial_process ) {
-
+            Machine(Process * process) {
+                Start(process);
             }
-            process_id GetProcessId(const Process * process) {
-                for ( unsigned i; i < max_processes; i++ ) {
-                    if ( process == processes[i]  ) return i;
+            Machine(Process * process[], unsigned count) {
+                for (process_id index = 0; index < count; index ++) {
+                    Start(process[index]);
                 }
             }
-            void SetPriority(Process &processes) {
-
+            unsigned GetHighestPriority() {
+                unsigned result = 1;
+                for ( process_id process_id; process_id < max_processes; process_id++) {
+                    if ( processes[process_id]->Executing() ) {
+                        if ( processes[process_id]->priority > result ) {
+                            result = processes[process_id]->priority;
+                        }
+                    }
+                }
+                return result;
+            }
+            void Execute () {
+                unsigned execute_threshold = GetHighestPriority();
+                for ( process_id process_id; process_id < max_processes; process_id++ ) {
+                    processAccumulator[process_id] += processes[process_id]->priority;
+                    if(processAccumulator[process_id] > execute_threshold) {
+                        processAccumulator[process_id] -= execute_threshold;
+                        processes[process_id]->Execute();
+                    }
+                }
+            }
+            
+            bool Start (Process * process) {
+                for (process_id pid = 0; pid < max_processes; pid++) {
+                    if (!processes[pid]->Executing()) {
+                        processes[pid] = process;
+                        return true;
+                    }
+                }
+                return false;
             }
             private:
-            unsigned priorityCounters[max_processes];
-            unsigned max_priority = 1;
-
+            unsigned processAccumulator[max_processes];
         };
         //static Machine<> systemMachine = { &systemProcess, 1 };
     }

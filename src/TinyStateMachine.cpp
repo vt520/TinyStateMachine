@@ -45,6 +45,7 @@ namespace Tiny {
         StartNext(state);
     }
     void Process::StartNext(State *state) {
+        if (disabled == priority) priority = defaultPriority;
         if (currentState != nullptr) {
             currentState->Exit(&context);
         }        
@@ -57,7 +58,7 @@ namespace Tiny {
         if (!state->Start(&context, fail_state)) StartNext(fail_state);
     }
 
-    void Process::Continues() {
+    void Process::Execute() {
         if(nullptr == currentState) return;
         State * next_state;
         bool busy = currentState->Continues(&context, next_state);
@@ -76,12 +77,12 @@ namespace Tiny {
     }
 
     bool Process::Active() {
-        Continues();
+        Execute();
         return Executing();
     }
 
     bool Process::Idle() {
-        Continues();
+        Execute();
         return ExecutingIdle();
     }
 

@@ -40,7 +40,7 @@ DEFINE_STATE {
     }
 } WITH_INSTANCE (usingPin);
 
-Tiny::Machine foo = {{Tiny::systemProcess}};
+Tiny::Machine foo = {&Tiny::systemProcess};
 
 void setup() {
     using namespace Tiny;
@@ -49,5 +49,5 @@ void setup() {
 }
 
 void loop() {
-    Tiny::systemProcess.Continues();
+    Tiny::systemProcess.Execute();
 }
